@@ -127,7 +127,7 @@ namespace limits {
 	function init(): void {
         let buf = pins.createBuffer(2)                      // Create a buffer for i2c bus data
         buf[0] = REG_PRE_SCALE;                             // Point at pre-scaler register
-        buf[1] = PWM_FREQUENCY;                             // Set PWM frequency to 50Hz or repetition rate of 20mS
+        buf[1] = 0x1E;                             // Set PWM frequency to 50Hz or repetition rate of 20mS
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);      // Write to PCA9685 
         let data = readReg(CHIP_ADDRESS, REG_PRE_SCALE);
         basic.showNumber(data);
