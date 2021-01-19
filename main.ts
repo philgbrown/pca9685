@@ -36,7 +36,7 @@ namespace limits {
  //   let ServoMultiplier = 226
   //  let ServoZeroOffset = 0x66
 
-    let PCA9685_init: boolean = false               // Flag to allow us to initialise without explicitly calling the initialisation function 
+    let PCA9685_init: boolean = false;              // Flag to allow us to initialise without explicitly calling the initialisation function 
 
     //nice big list of servos for the block to use. These represent register offsets in the PCA9685
     export enum Servos {
@@ -124,7 +124,7 @@ namespace limits {
 	* This function should not be called directly by a user, the first servo write will call it.
     * This function initialises all 16 LED ON and LED OFF registers by using a single block write to the 'all LED' addresses.
 	*/
-	function initialisation(): void {
+	function init(): void {
         let buf = pins.createBuffer(2)                      // Create a buffer for i2c bus data
         buf[0] = REG_PRE_SCALE;                             // Point at pre-scaler register
         buf[1] = PWM_FREQUENCY;                             // Set PWM frequency to 50Hz or repetition rate of 20mS
@@ -162,9 +162,10 @@ namespace limits {
 	//% degrees.min=0 degrees.max=180
 	
     export function servoWrite(Servo: Servos, degrees: number): void {
-        if (PCA9685_init == false) {                        // PCA9685 initialised?
-            initialisation();                               // No, then initialise it 
-        }
+        //if (PCA9685_init == false) {                        // PCA9685 initialised?
+            init();                                         // No, then initialise it 
+        //}
+
         /*
         let buf = pins.createBuffer(2)
         let HighByte = false
