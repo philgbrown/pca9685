@@ -26,7 +26,7 @@ namespace limits {
     const REG_ALL_LED_OFF_H: number = 0xFD;         // All LED off high register address 
     const REG_PRE_SCALE: number = 0xFE;             // Pre-scaler register address
 
-    const PWM_FREQUENCY: number = 30;             // Pre-scaler value for 50Hz
+    const PWM_FREQUENCY: number = 0x79;             // Pre-scaler value for 50Hz
 
     
 // If you wanted to write some code that stepped through the servos then this is the BASe and size to do that 	
@@ -127,8 +127,8 @@ namespace limits {
 	function init(): void {
         let buf = pins.createBuffer(2)                      // Create a buffer for i2c bus data
         buf[0] = REG_PRE_SCALE;                             // Point at pre-scaler register
-        buf[1] = 0x1E;                             // Set PWM frequency to 50Hz or repetition rate of 20mS
-        //pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);      // Write to PCA9685 
+        buf[1] = PWM_FREQUENCY;                             // Set PWM frequency to 50Hz or repetition rate of 20mS
+        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);      // Write to PCA9685 
         let data = readReg(CHIP_ADDRESS, REG_PRE_SCALE);
         basic.showNumber(data);
         buf[0] = REG_ALL_LED_ON_L;                          // Point at ALL LED ON low byte register 
@@ -138,7 +138,7 @@ namespace limits {
         buf[1] = 0x00;                                      // Start each frame with pulse high
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);      // Write to PCA9685
         buf[0] = REG_ALL_LED_OFF_L;                         //
-        buf[1] = 0x11;                                      // End high pulse at mid range 1.5mS = 1500/4.88uS = 307 (0x133)
+        buf[1] = 0x33;                                      // End high pulse at mid range 1.5mS = 1500/4.88uS = 307 (0x133)
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);      // Write to PCA9685
         buf[0] = REG_ALL_LED_OFF_H;                         //
         buf[1] = 0x01;                                      // End high pulse at mid range 1.5mS = 1500/4.88uS = 307 (0x133)
