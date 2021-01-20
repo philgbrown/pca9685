@@ -6,6 +6,10 @@
  * The extra block will allow each of the 16 servo outputs to be individually configured to one of the following six pulse ranges: 
  * 1mS - 2mS (so called industry default standard), 0.9mS - 2.1mS, 0.8mS - 2.2mS, 0.7mS - 2.3mS, 0.6mS - 2.4mS and 0.5mS - 2.5mS. 
  * The PWM frequency is set to 50Hz making each bit of the PCA9685 4096 count equal to 4.88uS
+ * 
+ * If your multi servo motor projects suffer from growling servo motors hard up against there internal stops and overheating
+ * to the point of failure. Growling and squealing servo motors can also cause all sorts of power supply issues ranging from overheating power regulators,
+ * brownouts and unexplained resets. If have any of these problems then this extension may be the answer to your problems.
  */
 
 namespace limits {
@@ -30,30 +34,32 @@ namespace limits {
 
     let PCA9685_init: boolean = false;              // Flag to allow us to initialise without explicitly calling the initialisation function 
 
-    //nice big list of servos for the block to use. These represent register offsets in the PCA9685
+    // List of possible 16 servo motors 
     export enum Servos {
-        Servo1 = 0x08,
-        Servo2 = 0x0C,
-        Servo3 = 0x10,
-        Servo4 = 0x14,
-        Servo5 = 0x18,
-        Servo6 = 0x1C,
-        Servo7 = 0x20,
-        Servo8 = 0x24,
-        Servo9 = 0x28,
-        Servo10 = 0x2C,
-        Servo11 = 0x30,
-        Servo12 = 0x34,
-        Servo13 = 0x38,
-        Servo14 = 0x3C,
-        Servo15 = 0x40,
-        Servo16 = 0x44,
+        Servo1 = 1,
+        Servo2 = 2,
+        Servo3 = 3,
+        Servo4 = 4,
+        Servo5 = 5,
+        Servo6 = 6,
+        Servo7 = 7,
+        Servo8 = 8,
+        Servo9 = 9,
+        Servo10 = 10,
+        Servo11 = 11,
+        Servo12 = 12,
+        Servo13 = 13,
+        Servo14 = 14,
+        Servo15 = 15,
+        Servo16 = 16,
     }
 
+    // 
 	export enum BoardAddresses{
 		Board1 = 0x6A,
 	}
 
+    // List of possible output pulse ranges
     export enum PulseRange {
         R500_2500uS = 1,
         R600_2400uS = 2,
@@ -62,26 +68,30 @@ namespace limits {
         R900_2100uS = 5,
         R1000_2000uS = 6,
     }
-    //                  0.5  0.6  0.7  0.8  0.9  1.0 mS
+
+    // Time             0.5  0.6  0.7  0.8  0.9  1.0 mS
     const loPulseLim = [102, 123, 143, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
 
-    //                  2.5  2.4  2.3  2.2  2.1  2.0 mS 
+    // Time             2.5  2.4  2.3  2.2  2.1  2.0 mS 
     const hiPulseLim = [512, 500, 471, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
-    //             2.0  1.8  1.6  1.4  1.2  1.0 mS 
+    // Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
     const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
+    // Servo number   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
     let servoRange = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
 
-    
-    function readReg(addr: number, reg: number): number {       // Read 8 bit big-endian unsigned integer
+    // Function to read i2c register - for testing purposes
+    function readReg(addr: number, reg: number): number {       // Read 8 bit little-endian unsigned integer
         pins.i2cWriteNumber(addr, reg, NumberFormat.UInt8LE);
         return pins.i2cReadNumber(addr, NumberFormat.UInt8LE);
     }
-    
+
+    // Function to map o value from one range into another range 
     function map(value: number, fromLow: number, fromHigh: number, toLow: number, toHigh: number): number {
         return ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow;
     }
+
 	/*
 	* This initialisation function sets up the PCA9865 servo driver chip. 
     * The PCA9685 comes out of reset in low power mode with the internal oscillator off with no output signals, this allows writes to the pre-scaler register.
@@ -153,13 +163,13 @@ namespace limits {
     /**
      * Sets the specified servo to the specified pulse range.
 	 * On startup all 16 servos are set to the default pulse range of 0.5mS to 2.5mS
-	 * This block is used to set the pulse range to a specific range, not the default
+	 * This block is used to set the pulse range to a specific range, other than the default
      * 
      * @param Servo Which servo to alter the pulse range.
 	 * @param Range The new pulse range for the servo.
      */
     //% blockId=set_pulse_range
-    //% block="set%Servo|to%PulseRange"
+    //% block="set%Servo|%PulseRange"
 	export  function setRange (Servo: Servos, Range: PulseRange): void {
         servoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
     }
