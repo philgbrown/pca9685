@@ -169,7 +169,7 @@ namespace limits {
 	 * @param Range The new pulse range for the servo.
      */
     //% blockId=set_pulse_range
-    //% block="set%Servo|%PulseRange"
+    //% block="set%Servo|pulse range%PulseRange"
 	export  function setRange (Servo: Servos, Range: PulseRange): void {
         servoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
     }
