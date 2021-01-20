@@ -18,8 +18,8 @@ namespace limits {
     const REG_SUB_ADR2: number = 0x03;              // Sub address register 2 address
     const REG_SUB_ADR3: number = 0x04;              // Sub address register 3 address
     const REG_ALL_CALL: number = 0x05;              // All call address register
-    const REG_SERVO1_REG_BASE: number = 0x06;       // Servo 1 base address 
-
+    const REG_SERVO1_BASE: number = 0x06;           // Servo 1 base address 
+    const REG_SERVO_DISTANCE: number = 4;           // Four registers per servo 
     const REG_ALL_LED_ON_L: number = 0xFA;          // All LED on low register address
     const REG_ALL_LED_ON_H: number = 0xFB;          // All LED on high register address
     const REG_ALL_LED_OFF_L: number = 0xFC;         // All LED off low register address
@@ -27,14 +27,6 @@ namespace limits {
     const REG_PRE_SCALE: number = 0xFE;             // Pre-scaler register address
 
     const PWM_FREQUENCY: number = 0x79;             // Pre-scaler value for 50Hz
-
-    
-// If you wanted to write some code that stepped through the servos then this is the BASe and size to do that 	
-//	let Servo1RegBase = 0x08 
-//   let ServoRegDistance = 4
-	//To get the PWM pulses to the correct size and zero offset these are the default numbers. 
- //   let ServoMultiplier = 226
-  //  let ServoZeroOffset = 0x66
 
     let PCA9685_init: boolean = false;              // Flag to allow us to initialise without explicitly calling the initialisation function 
 
@@ -70,48 +62,26 @@ namespace limits {
         R900_2100uS = 5,
         R1000_2000uS = 6,
     }
+    //                  0.5  0.6  0.7  0.8  0.9  1.0 mS
+    const loPulseLim = [102, 123, 143, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
 
-    //Trim the servo pulses. These are here for advanced users, and not exposed to blocks.
-    //It appears that servos I've tested are actually expecting 0.5 - 2.5mS pulses, 
-    //not the widely reported 1-2mS 
-    //that equates to multiplier of 226, and offset of 0x66
-    // a better trim function that does the maths for the end user could be exposed, the basics are here 
-	// for reference
+    //                  2.5  2.4  2.3  2.2  2.1  2.0 mS 
+    const hiPulseLim = [512, 500, 471, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
-    /*
-    export function TrimServoMultiplier(Value: number) {
-        if (Value < 113) {
-            ServoMultiplier = 113
-        }
-        else {
-            if (Value > 226) {
-                ServoMultiplier = 226
-            }
-            else {
-                ServoMultiplier = Value
-            }
-        }
-    }
-    export function TrimServoZeroOffset(Value: number) {
-        if (Value < 0x66) {
-            ServoZeroOffset = 0x66
-        }
-        else {
-            if (Value > 0xCC) {
-                ServoZeroOffset = 0xCC
-            }
-            else {
-                ServoZeroOffset = Value
-            }
-        }
-    }
-    */
+    //             2.0  1.8  1.6  1.4  1.2  1.0 mS 
+    const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
+    let servoRange = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
+
+    
     function readReg(addr: number, reg: number): number {       // Read 8 bit big-endian unsigned integer
         pins.i2cWriteNumber(addr, reg, NumberFormat.UInt8LE);
         return pins.i2cReadNumber(addr, NumberFormat.UInt8LE);
     }
-
+    
+    function map(value: number, fromLow: number, fromHigh: number, toLow: number, toHigh: number): number {
+        return ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow;
+    }
 	/*
 	* This initialisation function sets up the PCA9865 servo driver chip. 
     * The PCA9685 comes out of reset in low power mode with the internal oscillator off with no output signals, this allows writes to the pre-scaler register.
@@ -162,33 +132,35 @@ namespace limits {
 	//% degrees.min=0 degrees.max=180
 	
     export function servoWrite(Servo: Servos, degrees: number): void {
-        //if (PCA9685_init == false) {                        // PCA9685 initialised?
-            init();                                         // No, then initialise it 
-        //}
+        if (PCA9685_init == false) {                                    // PCA9685 initialised?
+            init();                                                     // No, then initialise it 
+        }
+        let range: number = servoRange[Servo - 1];                      // Get configured pulse range for specified servo
+        let lolim: number = loPulseLim[range - 1];                      // Get lower pulse limit for the pulse range
+        let hilim: number = hiPulseLim[range - 1];                      // Get upper pulse limit for the pulse range 
+        let pulse: number = map(degrees, 0, 180, lolim, hilim);         // Map degrees to pulse range
+        let final: number = pulse + lolim;                              // Pulse range starts at lolim actual pulse starts at zero 
 
-        /*
-        let buf = pins.createBuffer(2)
-        let HighByte = false
-        let deg100 = degrees * 100
-        let PWMVal100 = deg100 * ServoMultiplier
-        let PWMVal = PWMVal100 / 10000
-        PWMVal = Math.floor(PWMVal)
-        PWMVal = PWMVal + ServoZeroOffset
-        if (PWMVal > 0xFF) {
-            HighByte = true
-        }
-        buf[0] = Servo
-        buf[1] = PWMVal
-        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false)
-        if (HighByte) {
-            buf[0] = Servo + 1
-            buf[1] = 0x01
-        }
-        else {
-            buf[0] = Servo + 1
-            buf[1] = 0x00
-        }
-        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false)
-        */
+        let buf = pins.createBuffer(2);                                 // Create a buffer for i2c bus data 
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1);    // Calculate address of LED OFF low byte register
+        buf[1] = final % 256;                                           // Calculate low byte value 
+        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                  // Write low byte to PCA9685 
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1);    // Calculate address of LED OFF high byte register
+        buf[1] = Math.floor(final / 256);                               // Calculate high byte value
+        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                  // Write high byte to PCA9685
+    }
+
+    /**
+     * Sets the specified servo to the specified pulse range.
+	 * On startup all 16 servos are set to the default pulse range of 0.5mS to 2.5mS
+	 * This block is used to set the pulse range to a specific range, not the default
+     * 
+     * @param Servo Which servo to alter the pulse range.
+	 * @param Range The new pulse range for the servo.
+     */
+    //% blockId=set_pulse_range
+    //% block="set%Servo|to%PulseRange"
+	export  function setRange (Servo: Servos, Range: PulseRange): void {
+        servoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
     }
 }
