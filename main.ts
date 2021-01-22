@@ -148,7 +148,7 @@ namespace limits {
         let hilim: number = hiPulseLim[range - 1];                          // Get upper pulse limit for the pulse range 
         let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees to pulse range
         let final: number = pulse + lolim;                                  // Pulse range starts at lolim actual pulse starts at zero 
-
+        basic.showNumber(final);
         let buf = pins.createBuffer(2);                                     // Create a buffer for i2c bus data 
         buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1) + 2;    // Calculate address of LED OFF low byte register
         buf[1] = final % 256;                                               // Calculate low byte value 
