@@ -173,8 +173,8 @@ namespace limits {
     //% blockId=set_pulse_range
     //% block="set%Servo|pulse range%PulseRange"
 	export  function setRange (Servo: Servos, Range: PulseRange): void {
-        basic.showNumber(Servo);
-        basic.showNumber(Range);
+        //basic.showNumber(Servo);
+        //basic.showNumber(Range);
         ServoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
         basic.showNumber(ServoRange[Servo - 1]);
     }
