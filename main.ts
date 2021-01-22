@@ -73,7 +73,7 @@ namespace limits {
     const loPulseLim = [102, 123, 143, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
 
     // Time             2.5  2.4  2.3  2.2  2.1  2.0 mS 
-    const hiPulseLim = [512, 500, 500, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
+    const hiPulseLim = [512, 500, 512, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
     // Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
     //const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
