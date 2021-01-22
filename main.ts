@@ -126,7 +126,6 @@ namespace limits {
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false)       // Write to PCA9685
         basic.pause(10);                                    // Let oscillator start and settle 
         PCA9685_init = true;                                // The PCA9685 is now initialised, no need to do it again
-        basic.showString("I");
     }
 	
     /**
@@ -152,13 +151,9 @@ namespace limits {
         let buf = pins.createBuffer(2);                                     // Create a buffer for i2c bus data 
         buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * (Servo - 1)) + 2;  // Calculate address of LED OFF low byte register
         buf[1] = final % 256;                                               // Calculate low byte value 
-        basic.showNumber(buf[0]);
-        basic.showNumber(buf[1]);
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write low byte to PCA9685 
         buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * (Servo - 1)) + 3;  // Calculate address of LED OFF high byte register
         buf[1] = Math.floor(final / 256);                                   // Calculate high byte value
-        basic.showNumber(buf[0]);
-        basic.showNumber(buf[1]);
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write high byte to PCA9685
     }
 
@@ -173,8 +168,6 @@ namespace limits {
     //% blockId=set_pulse_range
     //% block="set%Servo|pulse range%PulseRange"
 	export  function setRange (Servo: Servos, Range: PulseRange): void {
-        //basic.showNumber(Servo);
-        //basic.showNumber(Range);
         ServoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
         basic.showNumber(ServoRange[Servo - 1]);
     }
