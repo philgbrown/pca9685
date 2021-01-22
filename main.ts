@@ -76,10 +76,10 @@ namespace limits {
     const hiPulseLim = [512, 500, 471, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
     // Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
-    const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
+    //const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
     // Servo number   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
-    let ServoRange = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
+    let ServoRange = [1, 2, 3, 4, 5, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
 
     // Function to read i2c register - for testing purposes
     function readReg(addr: number, reg: number): number {       // Read 8 bit little-endian unsigned integer
