@@ -142,22 +142,22 @@ namespace limits {
 	//% degrees.min=0 degrees.max=180
 	
     export function servoWrite(Servo: Servos, degrees: number): void {
-        if (PCA9685_init == false) {                                    // PCA9685 initialised?
-            init();                                                     // No, then initialise it 
+        if (PCA9685_init == false) {                                        // PCA9685 initialised?
+            init();                                                         // No, then initialise it 
         }
-        let range: number = servoRange[Servo - 1];                      // Get configured pulse range for specified servo
-        let lolim: number = loPulseLim[range - 1];                      // Get lower pulse limit for the pulse range
-        let hilim: number = hiPulseLim[range - 1];                      // Get upper pulse limit for the pulse range 
-        let pulse: number = map(degrees, 0, 180, lolim, hilim);         // Map degrees to pulse range
-        let final: number = pulse + lolim;                              // Pulse range starts at lolim actual pulse starts at zero 
+        let range: number = servoRange[Servo - 1];                          // Get configured pulse range for specified servo
+        let lolim: number = loPulseLim[range - 1];                          // Get lower pulse limit for the pulse range
+        let hilim: number = hiPulseLim[range - 1];                          // Get upper pulse limit for the pulse range 
+        let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees to pulse range
+        let final: number = pulse + lolim;                                  // Pulse range starts at lolim actual pulse starts at zero 
 
-        let buf = pins.createBuffer(2);                                 // Create a buffer for i2c bus data 
-        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1);    // Calculate address of LED OFF low byte register
-        buf[1] = final % 256;                                           // Calculate low byte value 
-        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                  // Write low byte to PCA9685 
-        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1);    // Calculate address of LED OFF high byte register
-        buf[1] = Math.floor(final / 256);                               // Calculate high byte value
-        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                  // Write high byte to PCA9685
+        let buf = pins.createBuffer(2);                                     // Create a buffer for i2c bus data 
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1) + 2;    // Calculate address of LED OFF low byte register
+        buf[1] = final % 256;                                               // Calculate low byte value 
+        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write low byte to PCA9685 
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo - 1) + 3;    // Calculate address of LED OFF high byte register
+        buf[1] = Math.floor(final / 256);                                   // Calculate high byte value
+        pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write high byte to PCA9685
     }
 
     /**
