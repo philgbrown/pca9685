@@ -150,12 +150,12 @@ namespace limits {
         let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees to pulse range
         let final: number = Math.floor(pulse);                              // No decimal points  
         let buf = pins.createBuffer(2);                                     // Create a buffer for i2c bus data 
-        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo) + 2;        // Calculate address of LED OFF low byte register
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * (Servo - 1)) + 2;  // Calculate address of LED OFF low byte register
         buf[1] = final % 256;                                               // Calculate low byte value 
         basic.showNumber(buf[0]);
         basic.showNumber(buf[1]);
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write low byte to PCA9685 
-        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * Servo) + 3;        // Calculate address of LED OFF high byte register
+        buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * (Servo - 1)) + 3;        // Calculate address of LED OFF high byte register
         buf[1] = Math.floor(final / 256);                                   // Calculate high byte value
         pins.i2cWriteBuffer(CHIP_ADDRESS, buf, false);                      // Write high byte to PCA9685
     }
