@@ -79,7 +79,7 @@ namespace limits {
     const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
     // Servo number   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
-    let servoRange = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
+    let ServoRange = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
 
     // Function to read i2c register - for testing purposes
     function readReg(addr: number, reg: number): number {       // Read 8 bit little-endian unsigned integer
@@ -144,7 +144,7 @@ namespace limits {
         if (PCA9685_init == false) {                                        // PCA9685 initialised?
             init();                                                         // No, then initialise it 
         }
-        let range: number = servoRange[Servo - 1];                          // Get configured pulse range for specified servo
+        let range: number = ServoRange[Servo - 1];                          // Get configured pulse range for specified servo
         let lolim: number = loPulseLim[range - 1];                          // Get lower pulse limit for the pulse range
         let hilim: number = hiPulseLim[range - 1];                          // Get upper pulse limit for the pulse range 
         let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees to pulse range
@@ -173,6 +173,9 @@ namespace limits {
     //% blockId=set_pulse_range
     //% block="set%Servo|pulse range%PulseRange"
 	export  function setRange (Servo: Servos, Range: PulseRange): void {
-        servoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
+        basic.showNumber(Servo);
+        basic.showNumber(Range);
+        ServoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
+        basic.showNumber(ServoRange[Servo - 1]);
     }
 }
