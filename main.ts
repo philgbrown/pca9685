@@ -1,15 +1,15 @@
 /**
  * Blocks for driving the I2C 16-Servo Driver Board (PCA9685) with configurable pulse widths
  * This extension provides an additional block that allows the minimum and maximum pulse width of the servo signal to be set 
- * The original extension had the minimum pulse width at 550us and the maximum pulse width at 2700uS. These settings cause some servo 
+ * The original extension had the minimum pulse width at 550us and the maximum pulse width at 2500uS. These settings cause some servo 
  * motors to growl and over heat when positioned at 0 or 180 degrees. This situation will cause servo motors to fail.  
  * The extra block will allow each of the 16 servo outputs to be individually configured to one of the following six pulse ranges: 
  * 1mS - 2mS (so called industry default standard), 0.9mS - 2.1mS, 0.8mS - 2.2mS, 0.7mS - 2.3mS, 0.6mS - 2.4mS and 0.5mS - 2.5mS. 
  * The PWM frequency is set to 50Hz making each bit of the PCA9685 4096 count equal to 4.88uS
  * 
- * If your multi servo motor projects suffer from growling servo motors hard up against there internal stops and overheating
+ * If your multi servo motor projects suffers from growling servo motors hard up against there internal stops and overheating
  * to the point of failure. Growling and squealing servo motors can also cause all sorts of power supply issues ranging from overheating power regulators,
- * brownouts and unexplained resets. If have any of these problems then this extension may be the answer to your problems.
+ * brownouts and unexplained resets. If you have any of these problems then this extension may be the answer to your problems.
  */
 
 namespace limits {
@@ -70,13 +70,13 @@ namespace limits {
     }
 
     // Time             0.5  0.6  0.7  0.8  0.9  1.0 mS
-    const loPulseLim = [102, 123, 143, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
+    const loPulseLim = [123, 123, 123, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
 
     // Time             2.5  2.4  2.3  2.2  2.1  2.0 mS 
-    const hiPulseLim = [512, 500, 508, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
+    const hiPulseLim = [500, 500, 508, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
-    // Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
-    //const range = [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
+    //      Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
+    const range =      [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
     // Servo number   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
     let ServoRange = [1, 2, 3, 4, 5, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
