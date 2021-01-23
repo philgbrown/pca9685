@@ -4,7 +4,10 @@
  * The original extension had the minimum pulse width at 550us and the maximum pulse width at 2500uS. These settings cause some servo 
  * motors to growl and over heat when positioned at 0 or 180 degrees. This situation will cause servo motors to fail.  
  * The extra block will allow each of the 16 servo outputs to be individually configured to one of the following six pulse ranges: 
- * 1mS - 2mS (so called industry default standard), 0.9mS - 2.1mS, 0.8mS - 2.2mS, 0.7mS - 2.3mS, 0.6mS - 2.4mS and 0.5mS - 2.5mS. 
+ * 1mS - 2mS (so called industry default standard), 0.9mS - 2.1mS, 0.8mS - 2.2mS, 0.7mS - 2.3mS, 0.7mS - 2.4mS and 0.5mS - 2.5mS. 
+ * Alternativly the loPulseLim and hiPulseLim arrays can be edited to produce a custom pulse range. 
+ * Pulse minimums less than 0.7mS cause Tower-Pro 9g servos to hit the lower end stop. 
+ * Pulse maximums greater than 2.4mS cause Tower-Pro 9g servos to hit the upper end stop. 
  * The PWM frequency is set to 50Hz making each bit of the PCA9685 4096 count equal to 4.88uS
  * 
  * If your multi servo motor projects suffers from growling servo motors hard up against there internal stops and overheating
@@ -62,24 +65,24 @@ namespace limits {
     // List of possible output pulse ranges
     export enum PulseRange {
         R500_2500uS = 1,
-        R600_2400uS = 2,
+        R700_2400uS = 2,    // Currently set as default 
         R700_2300uS = 3,
         R800_2200uS = 4,
         R900_2100uS = 5,
         R1000_2000uS = 6,
     }
 
-    // Time             0.5  0.6  0.7  0.8  0.9  1.0 mS
-    const loPulseLim = [123, 123, 123, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
+    // Time             0.5  0.7  0.7  0.8  0.9  1.0 mS
+    const loPulseLim = [102, 143, 143, 164, 184, 204];  // Lower pulse limit width in multiples of 4.88uS
 
     // Time             2.5  2.4  2.3  2.2  2.1  2.0 mS 
-    const hiPulseLim = [500, 500, 508, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
+    const hiPulseLim = [512, 500, 471, 451, 430, 409];  // Higher pulse limit width in multiples of 4.88uS
 
-    //      Time        2.0  1.8  1.6  1.4  1.2  1.0 mS 
-    const range =      [410, 377, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
+    // Time             2.0  1.8  1.6  1.4  1.2  1.0 mS 
+    const range =      [410, 357, 328, 287, 246, 205];  // Pulse width range in multiples of 4.88uS
 
     // Servo number   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
-    let ServoRange = [1, 2, 3, 4, 5, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Individual servo pulse range, default = R500 - 2500uS 
+    let ServoRange = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]; // Individual servo pulse range, default = R700 - 2400uS 
 
     // Function to read i2c register - for testing purposes
     function readReg(addr: number, reg: number): number {       // Read 8 bit little-endian unsigned integer
@@ -146,7 +149,7 @@ namespace limits {
         let range: number = ServoRange[Servo - 1];                          // Get configured pulse range for specified servo
         let lolim: number = loPulseLim[range - 1];                          // Get lower pulse limit for the pulse range
         let hilim: number = hiPulseLim[range - 1];                          // Get upper pulse limit for the pulse range 
-        let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees to pulse range
+        let pulse: number = map(degrees, 0, 180, lolim, hilim);             // Map degrees 0-180 to pulse range
         let final: number = Math.floor(pulse);                              // No decimal points  
         let buf = pins.createBuffer(2);                                     // Create a buffer for i2c bus data 
         buf[0] = REG_SERVO1_BASE + (REG_SERVO_DISTANCE * (Servo - 1)) + 2;  // Calculate address of LED OFF low byte register
