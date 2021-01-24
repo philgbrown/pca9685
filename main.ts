@@ -15,7 +15,7 @@
  * brownouts and unexplained resets. If you have any of these problems then this extension may be the answer to your problems.
  */
 
-
+//% color="#AA278D" icon="\uf2db"
 namespace limits {
 
 // PCA9685 address definitions. 
