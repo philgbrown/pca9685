@@ -16,9 +16,9 @@
  */
 
 //% color="#AA278D" icon="\uf2db"
-namespace limits {
+namespace sorter {
 
-// PCA9685 address definitions. 
+    // PCA9685 address definitions. 
     const CHIP_ADDRESS: number = 0x6A;              // Default Chip address
     const REG_MODE1: number = 0x00;                 // Mode 1 register address 
     const REG_MODE2: number = 0x01;                 // Mode 2 register address 
@@ -175,4 +175,6 @@ namespace limits {
         ServoRange[Servo - 1] = Range;                  // Store new pulse range in servoRange array 
         basic.showNumber(ServoRange[Servo - 1]);
     }
+
+    
 }
