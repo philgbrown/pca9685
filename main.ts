@@ -16,7 +16,7 @@
  */
 
 //% color="#AA278D" icon="\uf2db"
-namespace sorter {
+namespace limits {
 
     // PCA9685 address definitions. 
     const CHIP_ADDRESS: number = 0x6A;              // Default Chip address
